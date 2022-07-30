@@ -22,7 +22,6 @@ sudo make install
 sudo ln -s /usr/local/src/python37/bin/python3.7 /usr/bin/python3.7
 sudo ln -s /usr/local/src/python37/bin/pip3.7 /usr/bin/pip3.7
 cd ../
-mkdir logs
 
 echo "Y" | sudo apt-get install python-virtualenv
 virtualenv -p python3.7 venv
