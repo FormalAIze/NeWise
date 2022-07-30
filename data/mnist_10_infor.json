@@ -1,0 +1,42 @@
+{
+    "img_0": {
+      "path": "data/mnist/mnist_img_0_label_7.jpg",
+      "label": 7
+    },
+    "img_1": {
+      "path": "data/mnist/mnist_img_1_label_2.jpg",
+      "label": 2
+    },
+    "img_2": {
+      "path": "data/mnist/mnist_img_2_label_1.jpg",
+      "label": 1
+    },
+    "img_3": {
+      "path": "data/mnist/mnist_img_3_label_0.jpg",
+      "label": 0
+    },
+    "img_4": {
+      "path": "data/mnist/mnist_img_4_label_4.jpg",
+      "label": 4
+    },
+    "img_5": {
+      "path": "data/mnist/mnist_img_5_label_1.jpg",
+      "label": 1
+    },
+    "img_6": {
+      "path": "data/mnist/mnist_img_6_label_4.jpg",
+      "label": 4
+    },
+    "img_7": {
+      "path": "data/mnist/mnist_img_7_label_9.jpg",
+      "label": 9
+    },
+    "img_8": {
+      "path": "data/mnist/mnist_img_8_label_5.jpg",
+      "label": 5
+    },
+    "img_9": {
+      "path": "data/mnist/mnist_img_9_label_9.jpg",
+      "label": 9
+    }
+  }
