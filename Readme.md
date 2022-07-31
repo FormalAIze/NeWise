@@ -6,12 +6,12 @@ NeWise is a general and efficient framework for certifying the robustness of neu
 
 All the scripts and code were tested on a workstation running Ubuntu 18.04.
 
-1. Download the code.
+1. Download the code:
    ```
    git clone https://github.com/zhangzhaodi233/NeWise.git
    cd NeWise
    ```
-2. Install all the necessary dependencies.
+2. Install all the necessary dependencies:
     ```
     . install.sh
     ```
@@ -22,12 +22,12 @@ When all the necessary dependencies are installed, the message "The enviroment h
 
 1. ```. run.sh``` or ```nohup sh run.sh > nohup.out 2>&1 &``` (if you prefer to run it in the background).
 
-2. The tables will be saved in 'results/table_resutls.txt'. The figures will be saved in 'figs/'.
+2. The tables will be saved in **results/table_resutls.txt** while the figures in **figs/**.
 
-Example format of Table 6 (partial):
+Example output of Table 6 (partial):
 ```
 
-==========================================================================================================================================================================================================================================================
+======================================================================================================================================================================================================================================================================================================================
 Table 6: 
 
 Model                                                             	 NW_aver 	 DC_aver 	 Impr.(%) 	 VN_aver 	 Impr.(%) 	 RV_aver 	 Impr.(%) 	 NW_std 	 DC_std 	 Impr.(%) 	 VN_std 	 Impr.(%) 	 RV_std 	 Impr.(%) 	    Time(s)
@@ -53,4 +53,4 @@ fashion_mnist_ffnn_2x200_with_positive_weights_sigmoid.h5         	 0.0263 	 0.0
 
 
 
-**Note:** the results of Table 4 and Table 9 would be slightly different for each run. This is because the images were taken randomly. However, the conclusions are consistent as made in the paper: the approximation computed by Algorithm 1 is the optimal approximation for a neural network containing only one hidden layer.
+**Note:** the results of Table 4 and Table 9 would be slightly different for each run as the images were taken randomly. However, the conclusions keep  consistent as made in the paper: the approximation computed by Algorithm 1 is the optimal approximation for a neural network containing only one hidden layer.
