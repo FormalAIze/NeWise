@@ -366,206 +366,6 @@ def robustVerifier_through_zero_case(UB, LB, act, actd):
     
     return alpha_u, beta_u, alpha_l, beta_l
 
-# @njit
-# def guided_first_case(UB, LB, act, actd, under_LB, under_UB):
-#     # upper bound [LB, UB] 两点连线
-#     alpha = (act(UB) - act(LB))/(UB - LB)
-#     alpha_u = alpha
-#     beta_u = act(LB) - alpha * LB
-    
-#     # lower bound 
-#     # 先判断 采样区间的中点是否大于0，若大于0，就不能取中点的切线，因为此时采样区间中点的切线不 sound，则只能取 (0,sigma(0))点切线
-#     mid_x = (under_UB + under_LB)/2
-#     if mid_x >= 0:
-#         alpha_l = actd(0)
-#         beta_l = act(0)
-#     else:
-#         alpha_l = actd(mid_x)
-#         beta_l = act(mid_x) - actd(mid_x) * mid_x
-    
-#     return alpha_u, beta_u, alpha_l, beta_l
-
-# @njit
-# def guided_second_case(UB, LB, act, actd, under_LB, under_UB):
-#     # upper bound
-#     # 先判断 采样区间的中点是否小于0，若小于0，就不能取中点的切线，因为此时采样区间中点的切线不 sound，则只能取 (0,sigma(0))点切线
-#     mid_x = (under_UB + under_LB)/2
-#     if mid_x <= 0:
-#         alpha_u = actd(0)
-#         beta_u = act(0) 
-#     else:
-#         alpha_u = actd(mid_x)
-#         beta_u = act(mid_x) - actd(mid_x) * mid_x
-        
-#     # lower bounds [LB, UB] 两点连线
-#     alpha = (act(UB) - act(LB))/(UB - LB)
-#     alpha_l = alpha
-#     beta_l = act(LB) - alpha * LB
-    
-#     return alpha_u, beta_u, alpha_l, beta_l
-
-# @njit
-# def guided_third_case(UB, LB, act, actd, actut, actlt, under_LB, under_UB):
-#     # 先根据 面积最小原则 + [LB, UB] 初始化 upper/lower bound
-#     # upper bound
-#     du = actut(LB, UB)
-#     alpha_du_xl = (act(du) - act(LB))/(du - LB)
-#     alpha_u = alpha_du_xl
-#     beta_u = act(du) - alpha_du_xl * du
-#     # lower bound
-#     dl = actlt(LB, UB)
-#     alpha_dl_xu = (act(dl) - act(UB))/(dl - UB)
-#     alpha_l = alpha_dl_xu
-#     beta_l = act(dl) - alpha_dl_xu * dl
-    
-#     # 再根据采样区间优化 upper/lower bound
-#     if under_UB <= 0:
-#         mid_x = (under_UB + under_LB)/2
-#         alpha_l = actd(mid_x)
-#         beta_l = act(mid_x) - actd(mid_x) * mid_x
-    
-#     if under_LB >= 0:
-#         mid_x = (under_UB + under_LB)/2
-#         alpha_u = actd(mid_x)
-#         beta_u = act(mid_x) - actd(mid_x) * mid_x
-        
-#     return alpha_u, beta_u, alpha_l, beta_l
-    
-@njit
-def guided_by_median_first_case(UB, LB, act, actd, actut, actlt, median_x):
-    # upper bound [LB, UB] 两点连线
-    alpha = (act(UB) - act(LB))/(UB - LB)
-    alpha_u = alpha
-    beta_u = act(LB) - alpha * LB
-    
-    # lower bound 
-    # 先判断 采样区间中位数是否大于0，若大于0，就不能取中位数的切线，因为此时采样区间中点的切线不 sound，则只能取 (0,sigma(0))点切线
-    if median_x >= 0:
-        mid_x = (UB + LB)/2
-        alpha_l = actd(mid_x)
-        beta_l = act(mid_x) - actd(mid_x) * mid_x
-    else:
-        alpha_l = actd(median_x)
-        beta_l = act(median_x) - actd(median_x) * median_x
-        # if np.isnan(alpha_l):
-        #     alpha_l = 0.0
-        #     beta_l = 0.0
-    return alpha_u, beta_u, alpha_l, beta_l
-
-@njit
-def guided_by_median_second_case(UB, LB, act, actd, actut, actlt, median_x):
-    # upper bound
-    # 先判断 采样区间的中位数是否小于0，若小于0，就不能取中位数的切线，因为此时采样区间中位数的切线不 sound，则只能取 (0,sigma(0))点切线
-    if median_x <= 0:
-        mid_x = (UB + LB)/2
-        alpha_u = actd(mid_x)
-        beta_u = act(mid_x) - actd(mid_x) * mid_x
-    else:
-        alpha_u = actd(median_x)
-        beta_u = act(median_x) - actd(median_x) * median_x
-        # if np.isnan(alpha_u):
-        #     alpha_l = 0.0
-        #     beta_l = 1.0
-        
-    # lower bounds [LB, UB] 两点连线
-    alpha = (act(UB) - act(LB))/(UB - LB)
-    alpha_l = alpha
-    beta_l = act(LB) - alpha * LB
-    
-    return alpha_u, beta_u, alpha_l, beta_l
-
-@njit
-def guided_by_median_third_case(UB, LB, act, actd, actut, actlt, median_x):
-    # 先根据 面积最小原则 + [LB, UB] 初始化 upper/lower bound
-    # upper bound
-    du = actut(LB, UB)
-    alpha_du_xl = (act(du) - act(LB))/(du - LB)
-    alpha_u = alpha_du_xl
-    beta_u = act(du) - alpha_du_xl * du
-    # lower bound
-    dl = actlt(LB, UB)
-    alpha_dl_xu = (act(dl) - act(UB))/(dl - UB)
-    alpha_l = alpha_dl_xu
-    beta_l = act(dl) - alpha_dl_xu * dl
-    
-    # 再根据采样区间优化 upper/lower bound
-    if median_x <= dl:
-        alpha_l = actd(median_x)
-        beta_l = act(median_x) - actd(median_x) * median_x
-    
-    if median_x >= du:        
-        alpha_u = actd(median_x)
-        beta_u = act(median_x) - actd(median_x) * median_x
-        
-    return alpha_u, beta_u, alpha_l, beta_l
-
-@njit
-def guided_by_endpoint_first_case(UB, LB, act, actd, under_l, under_u):
-    # upper bound [LB, UB] 两点连线
-    alpha = (act(UB) - act(LB))/(UB - LB)
-    alpha_u = alpha
-    beta_u = act(LB) - alpha * LB
-    
-    # lower bound 
-    # 先判断 采样区间左端点是否大于0，若大于0，就不能取左端点的切线，因为此时采样区间左端点的切线不 sound，则只能取 (0,sigma(0))点切线
-    if under_l >= 0:
-        alpha_l = actd(0)
-        beta_l = act(0)
-    else:
-        alpha_l = actd(under_l)
-        beta_l = act(under_l) - actd(under_l) * under_l
-        # if np.isnan(alpha_l):
-        #     alpha_l = 0.0
-        #     beta_l = 0.0
-    
-    return alpha_u, beta_u, alpha_l, beta_l
-
-@njit
-def guided_by_endpoint_second_case(UB, LB, act, actd, under_l, under_u):
-    # upper bound
-    # 先判断 采样区间的右端点是否小于0，若小于0，就不能取右端点的切线，因为此时采样区间右端点的切线不 sound，则只能取 (0,sigma(0))点切线
-    if under_u <= 0:
-        alpha_u = actd(0)
-        beta_u = act(0) 
-    else:
-        alpha_u = actd(under_u)
-        beta_u = act(under_u) - actd(under_u) * under_u
-        # if np.isnan(alpha_u):
-        #     alpha_l = 0.0
-        #     beta_l = 1.0
-        
-    # lower bounds [LB, UB] 两点连线
-    alpha = (act(UB) - act(LB))/(UB - LB)
-    alpha_l = alpha
-    beta_l = act(LB) - alpha * LB
-    
-    return alpha_u, beta_u, alpha_l, beta_l
-
-@njit
-def guided_by_endpoint_third_case(UB, LB, act, actd, actut, actlt, under_l, under_u):
-    # 先根据 面积最小原则 + [LB, UB] 初始化 upper/lower bound
-    # upper bound
-    du = actut(LB, UB)
-    alpha_du_xl = (act(du) - act(LB))/(du - LB)
-    alpha_u = alpha_du_xl
-    beta_u = act(du) - alpha_du_xl * du
-    # lower bound
-    dl = actlt(LB, UB)
-    alpha_dl_xu = (act(dl) - act(UB))/(dl - UB)
-    alpha_l = alpha_dl_xu
-    beta_l = act(dl) - alpha_dl_xu * dl
-    
-    # 再根据采样区间优化 upper/lower bound
-    if under_l <= dl:
-        alpha_l = actd(under_l)
-        beta_l = act(under_l) - actd(under_l) * under_l
-    
-    if under_u >= du:
-        alpha_u = actd(under_u)
-        beta_u = act(under_u) - actd(under_u) * under_u
-        
-    return alpha_u, beta_u, alpha_l, beta_l
-
 @njit
 def sigmoid_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
     alpha_u = np.zeros(UB.shape, dtype=np.float32)
@@ -573,9 +373,6 @@ def sigmoid_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
     alpha_l = np.zeros(LB.shape, dtype=np.float32)
     beta_l = np.zeros(LB.shape, dtype=np.float32)
     
-    # print("lower:",LB)
-    # print("upper:",UB)
-    # print("median:",strategy_map_LB)
     for i in range(LB.shape[0]):
         for j in range(LB.shape[1]):
             for k in range(LB.shape[2]):
@@ -602,11 +399,7 @@ def sigmoid_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
                         alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = endpoint_third_case(UB[i,j,k], LB[i,j,k], act, actd)      
                     elif method == 'RobustVerifier':
                         alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = veriNet_third_case(UB[i,j,k], LB[i,j,k], act, actd)              
-                    elif method == 'guided_by_median':
-                        alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_median_second_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k])
-                    elif method == 'guided_by_endpoint':
-                        alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_endpoint_second_case(UB[i,j,k], LB[i,j,k], act, actd, strategy_map_LB[i,j,k], strategy_map_UB[i,j,k])
-                
+                    
                 # sig'(l) < k < sig'(u)    
                 elif UB[i,j,k] <= 0:
                     if method == 'DeepCert':
@@ -617,10 +410,6 @@ def sigmoid_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
                         alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = endpoint_first_case(UB[i,j,k], LB[i,j,k], act, actd)   
                     elif method == 'RobustVerifier':
                         alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = robustVerifier_first_case(UB[i,j,k], LB[i,j,k], act, actd)                
-                    elif method == 'guided_by_median':
-                        alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_median_first_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k])
-                    elif method == 'guided_by_endpoint':
-                        alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_endpoint_first_case(UB[i,j,k], LB[i,j,k], act, actd, strategy_map_LB[i,j,k], strategy_map_UB[i,j,k])
                     
                 else:
                     
@@ -640,11 +429,7 @@ def sigmoid_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = minimal_area_first_case(UB[i,j,k], LB[i,j,k], act, actd)
                         elif method == 'NeWise':
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = endpoint_first_case(UB[i,j,k], LB[i,j,k], act, actd)      
-                        elif method == 'guided_by_median':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_median_first_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k])
-                        elif method == 'guided_by_endpoint':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_endpoint_first_case(UB[i,j,k], LB[i,j,k], act, actd, strategy_map_LB[i,j,k], strategy_map_UB[i,j,k])
-                       
+                        
                     # sig'(l) > k > sig'(u)
                     elif act(UB[i,j,k])-dU*(UB[i,j,k]-LB[i,j,k]) > act(LB[i,j,k]) and act(LB[i,j,k])+dL*(UB[i,j,k]-LB[i,j,k]) > act(UB[i,j,k]):
                         if method == 'DeepCert':
@@ -653,10 +438,6 @@ def sigmoid_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = minimal_area_third_case(UB[i,j,k], LB[i,j,k], act, actd)
                         elif method == 'NeWise':
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = endpoint_third_case(UB[i,j,k], LB[i,j,k], act, actd)    
-                        elif method == 'guided_by_median':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_median_second_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k])
-                        elif method == 'guided_by_endpoint':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_endpoint_second_case(UB[i,j,k], LB[i,j,k], act, actd, strategy_map_LB[i,j,k], strategy_map_UB[i,j,k])
                         
                     # k > sig'(l) and k > sig'(u)
                     else:
@@ -666,11 +447,7 @@ def sigmoid_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = minimal_area_fifth_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt)
                         elif method == 'NeWise':
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = endpoint_fifth_case(UB[i,j,k], LB[i,j,k], act, actd)      
-                        elif method == 'guided_by_median':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_median_third_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k])
-                        elif method == 'guided_by_endpoint':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_endpoint_third_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k], strategy_map_UB[i,j,k])
-                            
+                           
     return alpha_u, alpha_l, beta_u, beta_l
 
 @njit
@@ -789,11 +566,7 @@ def tanh_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
                         alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = endpoint_third_case(UB[i,j,k], LB[i,j,k], act, actd)      
                     elif method == 'RobustVerifier':
                         alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = veriNet_third_case(UB[i,j,k], LB[i,j,k], act, actd)  
-                    elif method == 'guided_by_median':
-                        alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_median_second_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k])            
-                    elif method == 'guided_by_endpoint':
-                        alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_endpoint_second_case(UB[i,j,k], LB[i,j,k], act, actd, strategy_map_LB[i,j,k], strategy_map_UB[i,j,k])
-                        
+                       
                 elif UB[i,j,k] <= 0:
                     if method == 'DeepCert':
                         alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = deepCert_first_case(UB[i,j,k], LB[i,j,k], act, actd, actup, actlow)
@@ -803,11 +576,7 @@ def tanh_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
                         alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = endpoint_first_case(UB[i,j,k], LB[i,j,k], act, actd)   
                     elif method == 'RobustVerifier':
                         alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = robustVerifier_first_case(UB[i,j,k], LB[i,j,k], act, actd) 
-                    elif method == 'guided_by_median':
-                        alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_median_first_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k])               
-                    elif method == 'guided_by_endpoint':
-                        alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_endpoint_first_case(UB[i,j,k], LB[i,j,k], act, actd, strategy_map_LB[i,j,k], strategy_map_UB[i,j,k])
-                        
+                       
                 else:
                     
                     if method == 'RobustVerifier':
@@ -825,11 +594,7 @@ def tanh_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = minimal_area_first_case(UB[i,j,k], LB[i,j,k], act, actd)
                         elif method == 'NeWise':
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = endpoint_first_case(UB[i,j,k], LB[i,j,k], act, actd)
-                        elif method == 'guided_by_median':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_median_first_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k])     
-                        elif method == 'guided_by_endpoint':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_endpoint_first_case(UB[i,j,k], LB[i,j,k], act, actd, strategy_map_LB[i,j,k], strategy_map_UB[i,j,k])
-                            
+                           
                     elif act(UB[i,j,k])-dU*(UB[i,j,k]-LB[i,j,k]) > act(LB[i,j,k]) and act(LB[i,j,k])+dL*(UB[i,j,k]-LB[i,j,k]) > act(UB[i,j,k]):
                         if method == 'DeepCert':
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = deepCert_second_case(UB[i,j,k], LB[i,j,k], act, actd, actup, actlow)
@@ -837,11 +602,7 @@ def tanh_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = minimal_area_third_case(UB[i,j,k], LB[i,j,k], act, actd)
                         elif method == 'NeWise':
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = endpoint_third_case(UB[i,j,k], LB[i,j,k], act, actd)    
-                        elif method == 'guided_by_median':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_median_second_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k])
-                        elif method == 'guided_by_endpoint':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_endpoint_second_case(UB[i,j,k], LB[i,j,k], act, actd, strategy_map_LB[i,j,k], strategy_map_UB[i,j,k])
-                            
+                           
                     else:
                         if method == 'DeepCert':
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = deepCert_third_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt)
@@ -849,11 +610,7 @@ def tanh_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = minimal_area_fifth_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt)
                         elif method == 'NeWise':
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = endpoint_fifth_case(UB[i,j,k], LB[i,j,k], act, actd)     
-                        elif method == 'guided_by_median':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_median_third_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k]) 
-                        elif method == 'guided_by_endpoint':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_endpoint_third_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k], strategy_map_UB[i,j,k])
-                            
+                           
     return alpha_u, alpha_l, beta_u, beta_l
 
 @njit
@@ -973,11 +730,7 @@ def atan_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
                         alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = endpoint_third_case(UB[i,j,k], LB[i,j,k], act, actd)      
                     elif method == 'RobustVerifier':
                         alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = veriNet_third_case(UB[i,j,k], LB[i,j,k], act, actd)
-                    elif method == 'guided_by_median':
-                        alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_median_second_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k])            
-                    elif method == 'guided_by_endpoint':
-                        alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_endpoint_second_case(UB[i,j,k], LB[i,j,k], act, actd, strategy_map_LB[i,j,k], strategy_map_UB[i,j,k])
-                        
+                     
                 elif UB[i,j,k] <= 0:
                     if method == 'DeepCert':
                         alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = deepCert_first_case(UB[i,j,k], LB[i,j,k], act, actd, actup, actlow)
@@ -987,11 +740,7 @@ def atan_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
                         alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = endpoint_first_case(UB[i,j,k], LB[i,j,k], act, actd)   
                     elif method == 'RobustVerifier':
                         alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = robustVerifier_first_case(UB[i,j,k], LB[i,j,k], act, actd)    
-                    elif method == 'guided_by_median':
-                        alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_median_first_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k])                           
-                    elif method == 'guided_by_endpoint':
-                        alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_endpoint_first_case(UB[i,j,k], LB[i,j,k], act, actd, strategy_map_LB[i,j,k], strategy_map_UB[i,j,k])
-                        
+                     
                 else:
                     
                     if method == 'RobustVerifier':
@@ -1009,11 +758,7 @@ def atan_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = minimal_area_first_case(UB[i,j,k], LB[i,j,k], act, actd)
                         elif method == 'NeWise':
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = endpoint_first_case(UB[i,j,k], LB[i,j,k], act, actd)  
-                        elif method == 'guided_by_median':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_median_first_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k])                   
-                        elif method == 'guided_by_endpoint':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_endpoint_first_case(UB[i,j,k], LB[i,j,k], act, actd, strategy_map_LB[i,j,k], strategy_map_UB[i,j,k])
-                            
+                          
                     elif act(UB[i,j,k])-dU*(UB[i,j,k]-LB[i,j,k]) > act(LB[i,j,k]) and act(LB[i,j,k])+dL*(UB[i,j,k]-LB[i,j,k]) > act(UB[i,j,k]):
                         if method == 'DeepCert':
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = deepCert_second_case(UB[i,j,k], LB[i,j,k], act, actd, actup, actlow)
@@ -1021,11 +766,7 @@ def atan_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = minimal_area_third_case(UB[i,j,k], LB[i,j,k], act, actd)
                         elif method == 'NeWise':
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = endpoint_third_case(UB[i,j,k], LB[i,j,k], act, actd)  
-                        elif method == 'guided_by_median':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_median_second_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k])              
-                        elif method == 'guided_by_endpoint':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_endpoint_second_case(UB[i,j,k], LB[i,j,k], act, actd, strategy_map_LB[i,j,k], strategy_map_UB[i,j,k])
-                            
+                           
                     else:
                         if method == 'DeepCert':
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = deepCert_third_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt)
@@ -1033,9 +774,5 @@ def atan_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = minimal_area_fifth_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt)
                         elif method == 'NeWise':
                             alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = endpoint_fifth_case(UB[i,j,k], LB[i,j,k], act, actd)    
-                        elif method == 'guided_by_median':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_median_third_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k])   
-                        elif method == 'guided_by_endpoint':
-                            alpha_u[i,j,k], beta_u[i,j,k], alpha_l[i,j,k], beta_l[i,j,k] = guided_by_endpoint_third_case(UB[i,j,k], LB[i,j,k], act, actd, actut, actlt, strategy_map_LB[i,j,k], strategy_map_UB[i,j,k])
-                            
+                           
     return alpha_u, alpha_l, beta_u, beta_l
