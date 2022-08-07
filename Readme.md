@@ -8,7 +8,7 @@ All the scripts and code were tested on a workstation running Ubuntu 18.04.
 
 1. Download the code:
    ```
-   git clone https://github.com/zhangzhaodi233/NeWise.git
+   git clone https://github.com/FormalAIze/NeWise.git
    cd NeWise
    ```
 2. Install all the necessary dependencies:
