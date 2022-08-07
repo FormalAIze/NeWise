@@ -367,7 +367,7 @@ def robustVerifier_through_zero_case(UB, LB, act, actd):
     return alpha_u, beta_u, alpha_l, beta_l
 
 @njit
-def sigmoid_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
+def sigmoid_linear_bounds(LB, UB, method):
     alpha_u = np.zeros(UB.shape, dtype=np.float32)
     beta_u = np.zeros(UB.shape, dtype=np.float32)
     alpha_l = np.zeros(LB.shape, dtype=np.float32)
@@ -535,7 +535,7 @@ def tanhlow(l, u, k):
     return lower
 
 @njit
-def tanh_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
+def tanh_linear_bounds(LB, UB, method):
     alpha_u = np.zeros(UB.shape, dtype=np.float32)
     beta_u = np.zeros(UB.shape, dtype=np.float32)
     alpha_l = np.zeros(LB.shape, dtype=np.float32)
@@ -699,7 +699,7 @@ def atanlow(l, u, k):
     
 
 @njit
-def atan_linear_bounds(LB, UB, strategy_map_LB, strategy_map_UB, method):
+def atan_linear_bounds(LB, UB, method):
     alpha_u = np.zeros(UB.shape, dtype=np.float32)
     beta_u = np.zeros(UB.shape, dtype=np.float32)
     alpha_l = np.zeros(LB.shape, dtype=np.float32)
