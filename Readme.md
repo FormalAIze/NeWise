@@ -1,6 +1,6 @@
 # NeWise Framework
 
-NeWise is a general and efficient framework for certifying the robustness of neural networks. Given a neural network and an input image, NeWise can calculate more precise certified lower robustness bound. Technical details can be found in the accepted ASE'22 [paper](https://github.com/zhangzhaodi233/NeWise/blob/main/ASE22_submission_159_technical_report.pdf).
+NeWise is a general and efficient framework for certifying the robustness of neural networks. Given a neural network and an input image, NeWise can calculate more precise certified lower robustness bound. Technical details can be found in the accepted ASE'22 [paper](https://github.com/FormalAIze/NeWise/blob/main/ASE22_submission_159_technical_report.pdf).
 
 ## Install NeWise
 
